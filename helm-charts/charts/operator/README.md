@@ -3,7 +3,7 @@ Intel Device Plugins for Kubernetes
 
 ## Get Helm Repository Info
 ```
-helm repo add intel-device-plugins https://obaranov1.github.io/helm-chart/
+helm repo add intel-device-plugins https://obaranov1.github.io/intel-device-plugins-helm-chart/
 helm repo update
 ```
 
