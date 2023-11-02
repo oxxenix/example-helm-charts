@@ -1,0 +1,7 @@
+apiVersion: v2
+name: dra-gpu-resource-driver
+description: A Helm chart for a Dynamic Resource Allocation (DRA) GPU Resource Driver
+
+type: application
+version: 0.1.8
+appVersion: "v0.1.8-beta"

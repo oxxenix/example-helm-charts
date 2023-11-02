@@ -1,0 +1,103 @@
+# Default values for DRA-GPU-Resource-Driver.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+namespaceOverride: ""
+fullnameOverride: ""
+selectorLabelsOverride: {}
+
+
+namespace: intel-gpu-resource-driver
+
+crds:
+  enabled: true
+
+imagePullSecrets: []
+image:
+  repository: ger-is-registry.caas.intel.com/dgpu-orchestration
+  pullPolicy: Always
+  tag: "v0.1.8-beta"
+
+serviceAccount:
+  create: true
+  name: "intel-gpu-resource-driver-service-account"
+  namespace: intel-gpu-resource-driver
+  labels: {}
+  annotations: {}
+  automount: true
+
+autoscaling:
+  enabled: false
+  # minReplicas: 1
+  # maxReplicas: 100
+  # targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+replicas: 1
+
+rbac:
+    create: true
+    createAggregateClusterRoles: false
+    pspEnabled: false
+    pspUseAppArmor: false
+    useExistingRole: ""
+    useExistingClusterRole: intel-gpu-resource-driver-role
+
+# Define Controller Part
+controller:
+  podAnnotations: {}
+  podLabels:
+    app: intel-gpu-resource-driver-controller
+  tolerations:
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+  nodeSelector: {}
+      #node-role.kubernetes.io/control-plane: ""
+  affinity: {}
+  containers:
+    podAnnotations: {}
+    controller:
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ "ALL" ]
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
+
+# Define Kubelet-Plugin Part
+kubeletPlugin:
+  podAnnotations: {}
+  podLabels:
+    app: intel-gpu-resource-driver-kubelet-plugin
+  containers:
+    init:
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ "ALL" ]
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+    kubelet-plugin:
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ "ALL" ]
+        readOnlyRootFilesystem: true
+        runAsUser: 0
+        seccompProfile:
+          type: RuntimeDefault
+  tolerations: []
+  nodeSelector: {}
+  affinity: {}
