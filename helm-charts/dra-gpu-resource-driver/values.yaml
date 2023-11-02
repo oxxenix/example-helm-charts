@@ -44,8 +44,6 @@ rbac:
 # Define Controller Part
 controller:
   podAnnotations: {}
-  podLabels:
-    app: intel-gpu-resource-driver-controller
   tolerations:
   - key: node-role.kubernetes.io/master
     operator: Exists
@@ -74,8 +72,6 @@ controller:
 # Define Kubelet-Plugin Part
 kubeletPlugin:
   podAnnotations: {}
-  podLabels:
-    app: intel-gpu-resource-driver-kubelet-plugin
   containers:
     init:
       securityContext:
@@ -88,7 +84,7 @@ kubeletPlugin:
         runAsUser: 10001
         seccompProfile:
           type: RuntimeDefault
-    kubelet-plugin:
+    plugin:
       securityContext:
         privileged: false
         allowPrivilegeEscalation: false

@@ -83,11 +83,11 @@ metadata:
   name: {{ include "dra-gpu-resource-driver.fullname" .}}-kubelet-plugin
   namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
   labels:
-    {{- include "dra-gpu-resource-driver.kubeletPlugin.podLabels" . | nindent 4 }}
+    {{- include "dra-gpu-resource-driver.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "dra-gpu-resource-driver.kubeletPlugin.podLabels" . | nindent 6 }}
+      {{- include "dra-gpu-resource-driver.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.kubeletPlugin.podAnnotations }}
@@ -95,7 +95,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-       {{- include "dra-gpu-resource-driver.kubeletPlugin.podLabels" . | nindent 8 }}
+       {{- include "dra-gpu-resource-driver.templateLabels" . | nindent 8 }}
     spec:
       serviceAccount: intel-gpu-resource-driver-service-account
       serviceAccountName: {{ include "dra-gpu-resource-driver.serviceAccountName" . }}
@@ -151,7 +151,7 @@ spec:
         - name: sysfs
           mountPath: "/sysfs"
         securityContext:
-           {{- toYaml .Values.kubeletPlugin.containers.kubelet-plugin.securityContext | nindent 10 }}
+           {{- toYaml .Values.kubeletPlugin.containers.plugin.securityContext | nindent 10 }}
       volumes:
       - name: plugins-registry
         hostPath:
@@ -183,7 +183,6 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -191,12 +190,12 @@ metadata:
   name: {{ include "dra-gpu-resource-driver.fullname" . }}-controller
   namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
   labels:
-     {{- include "dra-gpu-resource-driver.controller.podLabels" . | nindent 4 }}
+     {{- include "dra-gpu-resource-driver.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "dra-gpu-resource-driver.controller.podLabels" . | nindent 6 }}
+      {{- include "dra-gpu-resource-driver.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.controller.podAnnotations }}
@@ -204,7 +203,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "dra-gpu-resource-driver.controller.podLabels" . | nindent 8 }}
+        {{- include "dra-gpu-resource-driver.templateLabels" . | nindent 8 }}
     spec:
       serviceAccount: intel-gpu-resource-driver-service-account
       serviceAccountName: {{ include "dra-gpu-resource-driver.serviceAccountName" . }}
