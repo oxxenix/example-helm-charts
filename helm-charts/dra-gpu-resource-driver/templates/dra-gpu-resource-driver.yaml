@@ -3,6 +3,8 @@ apiVersion: gpu.resource.intel.com/v1alpha2
 kind: GpuClassParameters
 metadata:
   name: intel-gpu-params-shared
+  labels:
+    {{- include "dra-gpu-resource-driver.labels" . | nindent 4 }}
 spec:
   shared: true
 ---
@@ -80,7 +82,7 @@ data:
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ include "dra-gpu-resource-driver.fullname" .}}-kubelet-plugin
+  name: {{ include "dra-gpu-resource-driver.name" .}}-kubelet-plugin
   namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
   labels:
     {{- include "dra-gpu-resource-driver.labels" . | nindent 4 }}
@@ -187,7 +189,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dra-gpu-resource-driver.fullname" . }}-controller
+  name: {{ include "dra-gpu-resource-driver.name" . }}-controller
   namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
   labels:
      {{- include "dra-gpu-resource-driver.labels" . | nindent 4 }}

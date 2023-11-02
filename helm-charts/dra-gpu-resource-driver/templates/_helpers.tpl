@@ -5,21 +5,22 @@
 
 {{/*Create a default fully qualified app name.*/}}
 {{- define "dra-gpu-resource-driver.fullname" -}}
-{{- if .Values.fullnameOverride }}
+{{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
 
 {{/*Create chart name and version as used by the chart label.*/}}
 {{- define "dra-gpu-resource-driver.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s" $name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
 {{/*Create the name of the service account to use*/}}
@@ -74,5 +75,5 @@ Full image name with tag
 */}}
 {{- define "dra-gpu-resource-driver.fullimage" -}}
 {{- $tag := printf "v%s" .Chart.AppVersion }}
-{{- .Values.image.repository -}}:{{- .Values.image.tag | default $tag -}}
+{{- .Values.image.repository -}}/{{- .Values.image.name -}}:{{- .Values.image.tag | default $tag -}}
 {{- end }}

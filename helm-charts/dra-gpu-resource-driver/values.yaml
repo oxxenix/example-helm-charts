@@ -5,24 +5,20 @@ namespaceOverride: ""
 fullnameOverride: ""
 selectorLabelsOverride: {}
 
-
-namespace: intel-gpu-resource-driver
-
 crds:
   enabled: true
 
 imagePullSecrets: []
 image:
   repository: ger-is-registry.caas.intel.com/dgpu-orchestration
+  name: intel-gpu-resource-driver
   pullPolicy: Always
   tag: "v0.1.8-beta"
 
 serviceAccount:
   create: true
-  name: "intel-gpu-resource-driver-service-account"
-  namespace: intel-gpu-resource-driver
-  labels: {}
   annotations: {}
+  name: ""
   automount: true
 
 autoscaling:
