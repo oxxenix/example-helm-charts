@@ -13,7 +13,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ include "dra-gpu-resource-driver.serviceAccountName" . }}
-    namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
 roleRef:
   kind: ClusterRole
   {{- if .Values.rbac.useExistingClusterRole }}
