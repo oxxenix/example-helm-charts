@@ -1,5 +1,4 @@
 # Dynamic Resource Allocation (DRA) GPU Driver Helm Chart
-# Intel DLB Device Plugin Helm Chart
 
 ## Get Helm Repository Info
 ```
