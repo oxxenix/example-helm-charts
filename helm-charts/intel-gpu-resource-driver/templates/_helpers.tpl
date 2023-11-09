@@ -1,10 +1,10 @@
 {{/*Expand the name of the chart.*/}}
-{{- define "dra-gpu-resource-driver.name" -}}
+{{- define "intel-gpu-resource-driver.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*Create a default fully qualified app name.*/}}
-{{- define "dra-gpu-resource-driver.fullname" -}}
+{{- define "intel-gpu-resource-driver.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else -}}
@@ -18,22 +18,22 @@
 {{- end -}}
 
 {{/*Create chart name and version as used by the chart label.*/}}
-{{- define "dra-gpu-resource-driver.chart" -}}
+{{- define "intel-gpu-resource-driver.chart" -}}
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- printf "%s-%s" $name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
 {{/*Create the name of the service account to use*/}}
-{{- define "dra-gpu-resource-driver.serviceAccountName" -}}
+{{- define "intel-gpu-resource-driver.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "dra-gpu-resource-driver.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "intel-gpu-resource-driver.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*Create the namespace*/}}
-{{- define "dra-gpu-resource-driver.namespace" -}}
+{{- define "intel-gpu-resource-driver.namespace" -}}
 {{- if .Values.namespaceOverride }}
 {{- .Values.namespaceOverride }}
 {{- else }}
@@ -42,9 +42,9 @@
 {{- end }}
 
 {{/*Common labels*/}}
-{{- define "dra-gpu-resource-driver.labels" -}}
-helm.sh/chart: {{ include "dra-gpu-resource-driver.chart" . }}
-{{ include "dra-gpu-resource-driver.selectorLabels" . }}
+{{- define "intel-gpu-resource-driver.labels" -}}
+helm.sh/chart: {{ include "intel-gpu-resource-driver.chart" . }}
+{{ include "intel-gpu-resource-driver.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -53,8 +53,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 
 
 {{/*Template labels*/}}
-{{- define "dra-gpu-resource-driver.templateLabels" -}}
-app.kubernetes.io/name: {{ include "dra-gpu-resource-driver.name" . }}
+{{- define "intel-gpu-resource-driver.templateLabels" -}}
+app.kubernetes.io/name: {{ include "intel-gpu-resource-driver.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Values.selectorLabelsOverride }}
 {{ toYaml .Values.selectorLabelsOverride }}
@@ -62,18 +62,18 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*Selector labels*/}}
-{{- define "dra-gpu-resource-driver.selectorLabels" -}}
+{{- define "intel-gpu-resource-driver.selectorLabels" -}}
 {{- if .Values.selectorLabelsOverride -}}
 {{ toYaml .Values.selectorLabelsOverride }}
 {{- else -}}
-{{ include "dra-gpu-resource-driver.templateLabels" . }}
+{{ include "intel-gpu-resource-driver.templateLabels" . }}
 {{- end }}
 {{- end }}
 
 {{/*
 Full image name with tag
 */}}
-{{- define "dra-gpu-resource-driver.fullimage" -}}
+{{- define "intel-gpu-resource-driver.fullimage" -}}
 {{- $tag := printf "v%s" .Chart.AppVersion }}
 {{- .Values.image.repository -}}/{{- .Values.image.name -}}:{{- .Values.image.tag | default $tag -}}
 {{- end }}

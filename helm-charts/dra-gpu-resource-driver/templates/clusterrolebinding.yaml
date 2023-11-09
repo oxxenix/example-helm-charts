@@ -4,22 +4,12 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ include "dra-gpu-resource-driver.fullname" . }}-rolebinding
   namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
-  labels:
-    {{- include "dra-gpu-resource-driver.labels" . | nindent 4 }}
-  {{- with .Values.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 subjects:
 - kind: ServiceAccount
   name: {{ include "dra-gpu-resource-driver.serviceAccountName" . }}
   namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
 roleRef:
   kind: ClusterRole
-  {{- if .Values.rbac.useExistingClusterRole }}
-  name: {{ .Values.rbac.useExistingClusterRole }}
-  {{- else }}
   name: {{ include "dra-gpu-resource-driver.fullname" . }}-role
-  {{- end }}
   apiGroup: rbac.authorization.k8s.io
 {{- end }}

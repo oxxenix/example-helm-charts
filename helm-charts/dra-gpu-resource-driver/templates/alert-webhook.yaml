@@ -1,0 +1,106 @@
+# Service for tainting GPUs in node CRs, based on Alertmanager notifications
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: intel-gpu-dra-alert-webhook
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+  labels:
+    {{- toYaml .Values.alertWebhook.selectorLabels | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- toYaml .Values.alertWebhook.selectorLabels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.alertWebhook.selectorLabels | nindent 8 }}
+    spec:
+      serviceAccount: intel-gpu-alert-webhook-service-account
+      serviceAccountName: {{ .Values.alertWebhook.serviceAccount.name }}
+      # do not hesitate to kill
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: alert-webhook
+        image: {{ .Values.alertWebhook.image.repository }}/{{ .Values.alertWebhook.image.name }}:{{ .Values.alertWebhook.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.alertWebhook.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.alertWebhook.securityContext | nindent 10 }}
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        command: [
+          "/alert-webhook",
+          "--address", ":7777",
+          "--alerts", "HighGpuPowerUsage",
+          "--groups", "namespace,service",
+          "--values", "monitoring,collectd-gpu-plugin",
+          "-v", "3",
+        ]
+        # HTTP server port
+        ports:
+        - containerPort: {{ .Values.alertWebhook.service.targetPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # service name
+  name: {{ .Values.alertWebhook.service.name }}
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+spec:
+  selector:
+    # pod name
+    {{- toYaml .Values.alertWebhook.selectorLabels | nindent 4 }}
+  ports:
+  - name: {{ .Values.alertWebhook.service.portName }}
+    port: {{ .Values.alertWebhook.service.port }}
+    targetPort: {{ .Values.alertWebhook.service.targetPort }}
+  type: ClusterIP
+
+---
+{{- if .Values.alertWebhook.serviceAccount.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.alertWebhook.serviceAccount.name }}
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+{{- end }}
+
+---
+{{- if .Values.alertWebhook.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: intel-gpu-alert-webhook-role-binding
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+subjects:
+- kind: ServiceAccount
+  name: intel-gpu-alert-webhook-service-account
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+roleRef:
+  kind: ClusterRole
+  name: intel-gpu-alert-webhook-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+
+---
+{{- if and .Values.alertWebhook.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: intel-gpu-alert-webhook-role
+  namespace: {{ include "dra-gpu-resource-driver.namespace" . }}
+rules:
+- apiGroups: ["gpu.resource.intel.com"]
+  resources: ["gpuallocationstates"]
+  # updates existing GAS CRD, so no need for "create" or "delete"
+  verbs: ["get", "list", "watch", "update", "patch"]
+{{- end }}

@@ -1,5 +1,4 @@
-# Default values for DRA-GPU-Resource-Driver.
-# Declare variables to be passed into your templates.
+# Default values for intel-gpu-resource-driver.
 nameOverride: ""
 namespaceOverride: ""
 fullnameOverride: ""
@@ -91,42 +90,3 @@ kubeletPlugin:
   tolerations: []
   nodeSelector: {}
   affinity: {}
-
-
-alertWebhook:
-  selectorLabels:
-    app: intel-gpu-dra-alert-webhook
-  image:
-    # TODO -> needs to be updated before publishing.
-    repository: registry.fi.intel.com/ettammin
-    name: intel-gpu-resource-driver
-    tag: "v0.2"
-    pullPolicy: Always
-
-  service:
-    name: alert-webhook
-    portName: http
-    port: 80
-    targetPort: 7777
-
-  securityContext:
-    privileged: false
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop: [ "ALL" ]
-    readOnlyRootFilesystem: true
-    runAsUser: 65535
-    seccompProfile:
-      type: RuntimeDefault
-
-  serviceAccount:
-    create: true
-    annotations: {}
-    name: intel-gpu-alert-webhook-service-account
-    automount: true
-
-  rbac:
-    create: true
-    createAggregateClusterRoles: false
-    pspEnabled: false
-    pspUseAppArmor: false
