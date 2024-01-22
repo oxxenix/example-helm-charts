@@ -16,7 +16,7 @@ rules:
   verbs: ["*"]
 {{- end }}
 ---
-{{- if and .Values.alertWebhook.rbac.create }}
+{{- if and .Values.alertWebhook.enabled .Values.alertWebhook.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
