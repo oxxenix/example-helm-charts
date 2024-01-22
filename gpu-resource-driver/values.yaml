@@ -1,0 +1,132 @@
+# Default values for DRA-GPU-Resource-Driver.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+namespaceOverride: ""
+fullnameOverride: ""
+selectorLabelsOverride: {}
+
+imagePullSecrets: []
+image:
+  # TODO -> needs to be updated before publishing.
+  repository: ger-is-registry.caas.intel.com/dgpu-orchestration
+  name: intel-gpu-resource-driver
+  pullPolicy: Always
+  tag: "v0.3.0"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automount: true
+
+autoscaling:
+  enabled: false
+  # minReplicas: 1
+  # maxReplicas: 100
+  # targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+replicas: 1
+
+rbac:
+    create: true
+    createAggregateClusterRoles: false
+    pspEnabled: false
+    pspUseAppArmor: false
+
+# Define Controller Part
+controller:
+  podAnnotations: {}
+  tolerations:
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+  nodeSelector: {}
+      #node-role.kubernetes.io/control-plane: ""
+  affinity: {}
+  containers:
+    podAnnotations: {}
+    controller:
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ "ALL" ]
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
+
+# Define Kubelet-Plugin Part
+kubeletPlugin:
+  podAnnotations: {}
+  containers:
+    init:
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ "ALL" ]
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+    plugin:
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ "ALL" ]
+        readOnlyRootFilesystem: true
+        runAsUser: 0
+        seccompProfile:
+          type: RuntimeDefault
+  tolerations: []
+  nodeSelector: {}
+  affinity: {}
+
+
+# Define alert-webhook Part
+alertWebhook:
+  enabled: true
+  selectorLabels:
+    app: intel-gpu-dra-alert-webhook
+  image:
+    # TODO -> needs to be updated before publishing.
+    repository: registry.fi.intel.com/ettammin
+    name: intel-gpu-resource-driver
+    tag: "v0.2"
+    pullPolicy: Always
+
+  service:
+    name: alert-webhook
+    portName: http
+    port: 80
+    targetPort: 7777
+
+  securityContext:
+    privileged: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: [ "ALL" ]
+    readOnlyRootFilesystem: true
+    runAsUser: 65535
+    seccompProfile:
+      type: RuntimeDefault
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: intel-gpu-alert-webhook-service-account
+    automount: true
+
+  rbac:
+    create: true
+    createAggregateClusterRoles: false
+    pspEnabled: false
+    pspUseAppArmor: false

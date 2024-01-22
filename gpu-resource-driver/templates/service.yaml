@@ -1,0 +1,16 @@
+{{- if .Values.alertWebhook.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: alert-webhook
+  namespace: {{ include "intel-gpu-resource-driver.namespace" . }}
+spec:
+  selector:
+    app: intel-gpu-dra-alert-webhook
+  ports:
+  - name: http
+    targetPort: {{ .Values.alertWebhook.service.targetPort }}
+    port: {{ .Values.alertWebhook.service.port }}
+  type: {{ .Values.alertWebhook.service.type }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

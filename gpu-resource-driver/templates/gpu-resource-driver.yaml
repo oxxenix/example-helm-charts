@@ -121,7 +121,7 @@ spec:
       - name: kubelet-plugin
         image: {{ include "intel-gpu-resource-driver.fullimage" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        command: ["/kubelet-gpu-plugin", "-v", "5"]
+        command: ["/kubelet-plugin", "-v", "5"]
         env:
         - name: NODE_NAME
           valueFrom:
@@ -213,7 +213,7 @@ spec:
       - name: controller
         image:  {{ include "intel-gpu-resource-driver.fullimage" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        command: ["/gpu-controller", "-v", "6"]
+        command: ["/controller", "-v", "6"]
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -233,49 +233,3 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
----
-{{- if .Values.alertWebhook.enabled -}}
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: intel-gpu-dra-alert-webhook
-  namespace: {{ include "intel-gpu-resource-driver.namespace" . }}
-  labels:
-    {{- toYaml .Values.alertWebhook.selectorLabels | nindent 4 }}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      {{- toYaml .Values.alertWebhook.selectorLabels | nindent 6 }}
-  template:
-    metadata:
-      labels:
-        {{- toYaml .Values.alertWebhook.selectorLabels | nindent 8 }}
-    spec:
-      serviceAccount: intel-gpu-alert-webhook-service-account
-      serviceAccountName: {{ .Values.alertWebhook.serviceAccount.name }}
-      # do not hesitate to kill
-      terminationGracePeriodSeconds: 5
-      containers:
-      - name: alert-webhook
-        image: {{ .Values.alertWebhook.image.repository }}/{{ .Values.alertWebhook.image.name }}:{{ .Values.alertWebhook.image.tag | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.alertWebhook.image.pullPolicy }}
-        securityContext:
-          {{- toYaml .Values.alertWebhook.securityContext | nindent 10 }}
-        env:
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        command: [
-          "/alert-webhook",
-          "--address", ":7777",
-          "--alerts", "HighGpuPowerUsage",
-          "--groups", "namespace,service",
-          "--values", "monitoring,collectd-gpu-plugin",
-          "-v", "3",
-        ]
-        # HTTP server port
-        ports:
-        - containerPort: {{ .Values.alertWebhook.service.targetPort }}
-{{- end }}
